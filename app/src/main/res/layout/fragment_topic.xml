@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="15dp"
+    tools:context=".fragments.TopicFragment">
+
+    <EditText
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="title"
+        android:padding="5dp"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:padding="5dp"
+        android:layout_marginTop="10dp"
+        android:hint="description"
+        android:inputType="textMultiLine" />
+
+    <Button
+        android:id="@+id/create"
+        android:layout_marginTop="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Create"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/res"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Created with:"
+        android:layout_marginTop="20dp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        android:layout_marginLeft="10dp"
+        />
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="realme"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible"
+        android:layout_marginLeft="20dp"
+        />
+
+    <TextView
+        android:id="@+id/descriptionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="description"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible"
+        android:layout_marginLeft="20dp"
+        />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="60dp"
+        android:visibility="invisible"
+        />
+
+</LinearLayout>
