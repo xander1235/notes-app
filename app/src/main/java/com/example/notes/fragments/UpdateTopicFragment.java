@@ -66,66 +66,49 @@ public class UpdateTopicFragment extends DialogFragment {
         titleEdit.setText(title);
         descriptionEdit.setText(description);
 
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDialog().dismiss();
-            }
+        close.setOnClickListener(v -> getDialog().dismiss());
+
+        update.setOnClickListener(v -> {
+            RetrofitNetworkClient retrofitNetworkClient = RetrofitClient.getInstance().create(RetrofitNetworkClient.class);
+            Call<ResTopic> resTopicCall = retrofitNetworkClient.updateNote(new ReqTopic(title, description), transactionId);
+            progressBar.setVisibility(View.VISIBLE);
+            resTopicCall.enqueue(new Callback<ResTopic>() {
+                @Override
+                public void onResponse(Call<ResTopic> call, Response<ResTopic> response) {
+                    if (response.isSuccessful()) {
+                        topicListener.updateTopic(new ResTopic(titleEdit.getText().toString(), descriptionEdit.getText().toString()), position);
+                    } else {
+                    }
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onFailure(Call<ResTopic> call, Throwable t) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT);
+                }
+            });
         });
 
-        update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RetrofitNetworkClient retrofitNetworkClient = RetrofitClient.getInstance().create(RetrofitNetworkClient.class);
-                Call<ResTopic> resTopicCall = retrofitNetworkClient.updateNote(new ReqTopic(title, description), transactionId);
-                progressBar.setVisibility(View.VISIBLE);
-                resTopicCall.enqueue(new Callback<ResTopic>() {
-                    @Override
-                    public void onResponse(Call<ResTopic> call, Response<ResTopic> response) {
-                        if (response.isSuccessful()) {
-                            topicListener.updateTopic(new ResTopic(titleEdit.getText().toString(), descriptionEdit.getText().toString()), position);
-                            Toast.makeText(getContext(), "Topic successfully deleted", Toast.LENGTH_SHORT);
-                        }
-                        else {
-                            Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT);
-                        }
-                        progressBar.setVisibility(View.INVISIBLE);
+        delete.setOnClickListener(v -> {
+            RetrofitNetworkClient retrofitNetworkClient = RetrofitClient.getInstance().create(RetrofitNetworkClient.class);
+            Call<ResLogout> resLogoutCall = retrofitNetworkClient.deleteNote(transactionId, title);
+            resLogoutCall.enqueue(new Callback<ResLogout>() {
+                @Override
+                public void onResponse(Call<ResLogout> call, Response<ResLogout> response) {
+                    if (response.isSuccessful()) {
+                        topicListener.deleteTopic(position);
+                    } else {
                     }
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
 
-                    @Override
-                    public void onFailure(Call<ResTopic> call, Throwable t) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT);
-                    }
-                });
-            }
-        });
-
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RetrofitNetworkClient retrofitNetworkClient = RetrofitClient.getInstance().create(RetrofitNetworkClient.class);
-                Call<ResLogout> resLogoutCall = retrofitNetworkClient.deleteNote(transactionId, title);
-                resLogoutCall.enqueue(new Callback<ResLogout>() {
-                    @Override
-                    public void onResponse(Call<ResLogout> call, Response<ResLogout> response) {
-                        if (response.isSuccessful()) {
-                            topicListener.deleteTopic(position);
-                            Toast.makeText(getContext(), "Topic deleted successfully", Toast.LENGTH_SHORT);
-                        }
-                        else {
-                            Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT);
-                        }
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResLogout> call, Throwable t) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT);
-                    }
-                });
-            }
+                @Override
+                public void onFailure(Call<ResLogout> call, Throwable t) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
         getDialog().setTitle("Topic updater");
         getDialog().getWindow().setSoftInputMode(

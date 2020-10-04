@@ -3,24 +3,19 @@ package com.example.notes.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-
 import com.example.notes.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 
 import static com.example.notes.fragments.LoginFragment.LOGIN_PREFERENCE_NAME;
 import static com.example.notes.fragments.LoginFragment.LOGIN_TRANSACTION_ID;
@@ -52,7 +47,7 @@ public class DetailsFragment extends Fragment {
         fragmentManager = getFragmentManager();
 
         createFragment = new TopicFragment();
-        showNotesFragment = new TopicViewFragment();
+        showNotesFragment = TopicViewFragment.getInstance();
         profileFragment = new ProfileFragment();
         active = createFragment;
         fragmentManager.beginTransaction().add(R.id.details, showNotesFragment, "show-notes").hide(showNotesFragment).commit();

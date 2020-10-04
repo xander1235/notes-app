@@ -3,11 +3,6 @@ package com.example.notes.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +12,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.notes.R;
 import com.example.notes.network.RetrofitClient;
@@ -59,23 +58,14 @@ public class LoginFragment extends Fragment {
         fragmentManager = getFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginUser();
-            }
-        });
+        login.setOnClickListener(v -> loginUser());
 
 
-
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment signUpFragment = new NewUserFragment();
-                fragmentTransaction.replace(R.id.mainLinearLayout, signUpFragment);
-                fragmentTransaction.addToBackStack("login");
-                fragmentTransaction.commit();
-            }
+        textView.setOnClickListener(v -> {
+            Fragment signUpFragment = new NewUserFragment();
+            fragmentTransaction.replace(R.id.mainLinearLayout, signUpFragment);
+            fragmentTransaction.addToBackStack("login");
+            fragmentTransaction.commit();
         });
         return view;
     }
@@ -95,20 +85,20 @@ public class LoginFragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString(LOGIN_TRANSACTION_ID, resLogin.getTransactionId());
                     editor.apply();
-                    progressBar.setVisibility(View.INVISIBLE);
+                    progressBar.setVisibility(View.GONE);
                     Fragment detailsFragment = new DetailsFragment();
                     fragmentTransaction.replace(R.id.mainLinearLayout, detailsFragment);
                     fragmentTransaction.commit();
                 } else {
                     Log.i("Login ", "Something went wrong");
                 }
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<ResLogin> call, Throwable t) {
                 Log.i("Login ", "failed" + t.getLocalizedMessage());
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

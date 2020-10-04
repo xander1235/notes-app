@@ -3,9 +3,6 @@ package com.example.notes.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +11,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
 import com.example.notes.R;
+import com.example.notes.adapters.TopicViewAdapter;
 import com.example.notes.network.RetrofitClient;
 import com.example.notes.network.RetrofitNetworkClient;
 import com.example.notes.pojos.requests.ReqTopic;
@@ -57,14 +57,11 @@ public class TopicFragment extends Fragment {
         sharedPreferences = getContext().getSharedPreferences(LOGIN_PREFERENCE_NAME, Context.MODE_PRIVATE);
         transactionId = sharedPreferences.getString(LOGIN_TRANSACTION_ID, "");
 
-        create.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                descriptionText.setVisibility(View.INVISIBLE);
-                resText.setVisibility(View.INVISIBLE);
-                titleText.setVisibility(View.INVISIBLE);
-                createTopic();
-            }
+        create.setOnClickListener(v -> {
+            descriptionText.setVisibility(View.GONE);
+            resText.setVisibility(View.GONE);
+            titleText.setVisibility(View.GONE);
+            createTopic();
         });
         return view;
     }
@@ -77,23 +74,25 @@ public class TopicFragment extends Fragment {
             @Override
             public void onResponse(Call<ResTopic> call, Response<ResTopic> response) {
                 if (response.isSuccessful()) {
-                    resText.setText("Created with: ");
+                    resText.setText(R.string.text_create_with);
                     ResTopic resTopic = response.body();
                     titleText.setText(resTopic.getTitle());
                     titleText.setVisibility(View.VISIBLE);
                     descriptionText.setText(resTopic.getDescription());
                     descriptionText.setVisibility(View.VISIBLE);
+                    TopicViewAdapter.TopicListener topicListener = TopicViewFragment.getInstance();
+                    topicListener.addTopicToAdapter(resTopic);
                 }
                 else {
                     resText.setText("Something went wrong");
                 }
                 resText.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<ResTopic> call, Throwable t) {
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

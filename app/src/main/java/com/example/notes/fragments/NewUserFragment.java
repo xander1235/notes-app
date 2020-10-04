@@ -1,12 +1,6 @@
 package com.example.notes.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +10,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.example.notes.R;
 import com.example.notes.network.RetrofitClient;
 import com.example.notes.network.RetrofitNetworkClient;
-import com.example.notes.pojos.responses.ResUser;
 import com.example.notes.pojos.requests.ReqUser;
+import com.example.notes.pojos.responses.ResUser;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,25 +49,18 @@ public class NewUserFragment extends Fragment {
         success = view.findViewById(R.id.successText);
         login = view.findViewById(R.id.loginText);
 
-        signUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createNewUser();
-            }
-        });
+        signUp.setOnClickListener(v -> createNewUser());
 
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getFragmentManager().getBackStackEntryCount() > 0) {
-                    getFragmentManager().popBackStack();
-                }
-                else {
-                    FragmentManager fragmentManager = getFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.mainLinearLayout, new LoginFragment());
-                    fragmentTransaction.commit();
-                }
+        login.setOnClickListener(v -> {
+            success.setVisibility(View.GONE);
+            login.setVisibility(View.GONE);
+            if (getFragmentManager().getBackStackEntryCount() > 0) {
+                getFragmentManager().popBackStack();
+            } else {
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.mainLinearLayout, new LoginFragment());
+                fragmentTransaction.commit();
             }
         });
         return view;
@@ -85,20 +76,22 @@ public class NewUserFragment extends Fragment {
                 if (response.isSuccessful()) {
                     ResUser resUser = response.body();
                     Toast.makeText(getContext(), resUser.getMessage(), Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.INVISIBLE);
-                    success.setText(resUser.getMessage() + " for " + resUser.getUsername());
+                    progressBar.setVisibility(View.GONE);
+
+                    String message = resUser.getMessage() + " for " + resUser.getUsername();
+                    success.setText(message);
                     success.setVisibility(View.VISIBLE);
                     login.setVisibility(View.VISIBLE);
                     return;
                 }
                 Toast.makeText(getContext(), "Error fetching user", Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<ResUser> call, Throwable t) {
                 Toast.makeText(getContext(), "Error fetching failure", Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

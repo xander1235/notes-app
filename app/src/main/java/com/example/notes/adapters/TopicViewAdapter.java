@@ -31,10 +31,19 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.Topi
         Log.i("topic-adaper", String.valueOf(resTopics.size()));
     }
 
-    public interface TopicListener {
-        void updateTopic(ResTopic resTopic, int position);
-
-        void deleteTopic(int position);
+    @Override
+    public void onBindViewHolder(@NonNull TopicViewHolder holder, int position) {
+        ResTopic resTopic = resTopics.get(position);
+        TextView title = holder.title;
+        title.setText(resTopic.getTitle());
+        TextView description = holder.description;
+        description.setText(resTopic.getDescription());
+        holder.itemView.setOnClickListener(v -> {
+            FragmentActivity fragmentActivity = (FragmentActivity) (context);
+            FragmentManager fm = fragmentActivity.getSupportFragmentManager();
+            UpdateTopicFragment updateTopicFragment = new UpdateTopicFragment(title.getText().toString(), description.getText().toString(), position, topicListener);
+            updateTopicFragment.show(fm, "dialog");
+        });
     }
 
     @NonNull
@@ -45,22 +54,13 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.Topi
         return new TopicViewHolder(listItem);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull TopicViewHolder holder, int position) {
-        ResTopic resTopic = resTopics.get(position);
-        TextView title = holder.title;
-        title.setText(resTopic.getTitle());
-        TextView description = holder.description;
-        description.setText(resTopic.getDescription());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentActivity fragmentActivity = (FragmentActivity) (context);
-                FragmentManager fm = fragmentActivity.getSupportFragmentManager();
-                UpdateTopicFragment updateTopicFragment = new UpdateTopicFragment(title.getText().toString(), description.getText().toString(), position, topicListener);
-                updateTopicFragment.show(fm, "dialog");
-            }
-        });
+    public interface TopicListener {
+        void updateTopic(ResTopic resTopic, int position);
+
+        void deleteTopic(int position);
+
+        void addTopicToAdapter(ResTopic resTopic);
+
     }
 
 
