@@ -20,8 +20,11 @@ import com.example.notes.R;
 import com.example.notes.adapters.TopicViewAdapter;
 import com.example.notes.network.RetrofitClient;
 import com.example.notes.network.RetrofitNetworkClient;
+import com.example.notes.pojos.ErrorDetails;
 import com.example.notes.pojos.responses.ResTopic;
 import com.example.notes.pojos.responses.ResTopicsList;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ import retrofit2.Response;
 
 import static com.example.notes.fragments.LoginFragment.LOGIN_PREFERENCE_NAME;
 import static com.example.notes.fragments.LoginFragment.LOGIN_TRANSACTION_ID;
+import static com.example.notes.utils.NotesUtils.inputStreamToString;
 
 public class TopicViewFragment extends Fragment implements TopicViewAdapter.TopicListener {
 
@@ -41,18 +45,19 @@ public class TopicViewFragment extends Fragment implements TopicViewAdapter.Topi
     public static volatile TopicViewFragment topicViewFragment;
 
     SharedPreferences sharedPreferences;
-    private List<ResTopic> resTopics = new ArrayList<>();
     RecyclerView recyclerView;
     TopicViewAdapter topicViewAdapter;
-    private String transactionId;
     LinearLayoutManager linearLayoutManager;
     int onScreenCurrentVisibleItemCount, totalItemCount, firstItemVisibleOnScreenIndex, pageNumber = 0;
     boolean isScrolling = false;
     RetrofitNetworkClient retrofitNetworkClient;
     ProgressBar progressBar;
+    private List<ResTopic> resTopics = new ArrayList<>();
+    private String transactionId;
 
     public TopicViewFragment() {
         // Required empty public constructor
+        topicViewFragment = this;
     }
 
 
@@ -127,7 +132,22 @@ public class TopicViewFragment extends Fragment implements TopicViewAdapter.Topi
                     ResTopicsList resTopics = response.body();
                     addToAdapter(resTopics);
                 } else {
-                    Log.e("topics", "something went wrong");
+                    Gson gson = new Gson();
+                    String msg = "Something went wrong";
+                    int code = 400;
+                    if (response.errorBody() != null) {
+                        String body = inputStreamToString(response.errorBody().byteStream());
+                        ErrorDetails errorDetails = new ErrorDetails();
+                        errorDetails.setMessage(msg);
+                        try {
+                            errorDetails = gson.fromJson(body, ErrorDetails.class);
+                        } catch (IllegalStateException | JsonSyntaxException e) {
+                            errorDetails.setMessage("Something went wrong");
+                            errorDetails.setResponseCode(500);
+                            Log.i("error-body: ", body + "  cause: " + e.getLocalizedMessage());
+                        }
+                        msg = errorDetails.getMessage();
+                    }
                 }
                 progressBar.setVisibility(View.GONE);
             }
@@ -135,7 +155,7 @@ public class TopicViewFragment extends Fragment implements TopicViewAdapter.Topi
             @Override
             public void onFailure(Call<ResTopicsList> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Log.e("topics", "something went wrong");
+                Log.i("failure: ", t.getLocalizedMessage());
             }
         });
     }

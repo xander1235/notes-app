@@ -3,6 +3,7 @@ package com.example.notes.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +18,13 @@ import com.example.notes.R;
 import com.example.notes.adapters.TopicViewAdapter;
 import com.example.notes.network.RetrofitClient;
 import com.example.notes.network.RetrofitNetworkClient;
+import com.example.notes.pojos.ErrorDetails;
 import com.example.notes.pojos.requests.ReqTopic;
 import com.example.notes.pojos.responses.ResTopic;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,15 +32,16 @@ import retrofit2.Response;
 
 import static com.example.notes.fragments.LoginFragment.LOGIN_PREFERENCE_NAME;
 import static com.example.notes.fragments.LoginFragment.LOGIN_TRANSACTION_ID;
+import static com.example.notes.utils.NotesUtils.inputStreamToString;
 
 public class TopicFragment extends Fragment {
 
     EditText title, description;
     Button create;
-    private String transactionId;
     SharedPreferences sharedPreferences;
     ProgressBar progressBar;
     TextView titleText, descriptionText, resText;
+    private String transactionId;
 
     public TopicFragment() {
         // Required empty public constructor
@@ -82,9 +89,25 @@ public class TopicFragment extends Fragment {
                     descriptionText.setVisibility(View.VISIBLE);
                     TopicViewAdapter.TopicListener topicListener = TopicViewFragment.getInstance();
                     topicListener.addTopicToAdapter(resTopic);
-                }
-                else {
-                    resText.setText("Something went wrong");
+                } else {
+                    Gson gson = new Gson();
+                    String msg = "Something went wrong";
+                    int code = 400;
+                    Log.i("error body", response.errorBody().toString());
+                    if (response.errorBody() != null) {
+                        String body = inputStreamToString(response.errorBody().byteStream());
+                        ErrorDetails errorDetails = new ErrorDetails();
+                        errorDetails.setMessage(msg);
+                        try {
+                            errorDetails = gson.fromJson(body, ErrorDetails.class);
+                        } catch (IllegalStateException | JsonSyntaxException e) {
+                            errorDetails.setMessage("Something went wrong");
+                            errorDetails.setResponseCode(500);
+                            Log.i("error-body: ", body + "  cause: " + e.getLocalizedMessage());
+                        }
+                        msg = errorDetails.getMessage();
+                    }
+                    resText.setText(msg);
                 }
                 resText.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
@@ -92,6 +115,9 @@ public class TopicFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ResTopic> call, Throwable t) {
+                Log.i("failure: ", Objects.requireNonNull(t.getLocalizedMessage()));
+                resText.setText(t.getLocalizedMessage());
+                resText.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
             }
         });

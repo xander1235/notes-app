@@ -6,4 +6,6 @@
 
     <color name="colorNavIcon">#dae9f6</color>
     <color name="colorNavText">#01294b</color>
+    <color name="successText">#18741C</color>
+    <color name="failureText">#F44336</color>
 </resources>

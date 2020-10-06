@@ -3,15 +3,14 @@ package com.example.notes.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.notes.R;
 
@@ -37,14 +36,11 @@ public class ProfileFragment extends Fragment {
         logout = view.findViewById(R.id.logout);
 
         sharedPreferences = getContext().getSharedPreferences(LOGIN_PREFERENCE_NAME, Context.MODE_PRIVATE);
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.remove(LOGIN_TRANSACTION_ID);
-                editor.apply();
-                goToLogIn();
-            }
+        logout.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.remove(LOGIN_TRANSACTION_ID);
+            editor.apply();
+            goToLogIn();
         });
 
         return view;

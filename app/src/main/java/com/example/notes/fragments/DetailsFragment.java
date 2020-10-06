@@ -28,38 +28,6 @@ public class DetailsFragment extends Fragment {
     Fragment createFragment;
     Fragment showNotesFragment;
     Fragment profileFragment;
-
-    public DetailsFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_details, container, false);
-
-        sharedPreferences = getContext().getSharedPreferences(LOGIN_PREFERENCE_NAME, Context.MODE_PRIVATE);
-        if (TextUtils.isEmpty(sharedPreferences.getString(LOGIN_TRANSACTION_ID, ""))) {
-            goToLogIn();
-        }
-
-        fragmentManager = getFragmentManager();
-
-        createFragment = new TopicFragment();
-        showNotesFragment = TopicViewFragment.getInstance();
-        profileFragment = new ProfileFragment();
-        active = createFragment;
-        fragmentManager.beginTransaction().add(R.id.details, showNotesFragment, "show-notes").hide(showNotesFragment).commit();
-        fragmentManager.beginTransaction().add(R.id.details, profileFragment, "profile").hide(profileFragment).commit();
-        fragmentManager.beginTransaction().add(R.id.details, createFragment, "create-notes").commit();
-
-        BottomNavigationView bottomNav = view.findViewById(R.id.bottomNavigation);
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
-
-        return view;
-    }
-
     private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -80,6 +48,37 @@ public class DetailsFragment extends Fragment {
             return true;
         }
     };
+
+    public DetailsFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_details, container, false);
+
+        sharedPreferences = getContext().getSharedPreferences(LOGIN_PREFERENCE_NAME, Context.MODE_PRIVATE);
+        if (TextUtils.isEmpty(sharedPreferences.getString(LOGIN_TRANSACTION_ID, ""))) {
+            goToLogIn();
+        }
+
+        fragmentManager = getFragmentManager();
+
+        createFragment = new TopicFragment();
+        showNotesFragment = new TopicViewFragment();
+        profileFragment = new ProfileFragment();
+        active = createFragment;
+        fragmentManager.beginTransaction().add(R.id.details, showNotesFragment, "show-notes").hide(showNotesFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.details, profileFragment, "profile").hide(profileFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.details, createFragment, "create-notes").commit();
+
+        BottomNavigationView bottomNav = view.findViewById(R.id.bottomNavigation);
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        return view;
+    }
 
     private void goToLogIn() {
         FragmentManager fragmentManager = getFragmentManager();

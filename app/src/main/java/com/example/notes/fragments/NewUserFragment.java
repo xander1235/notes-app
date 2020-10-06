@@ -1,6 +1,7 @@
 package com.example.notes.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,19 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.notes.R;
 import com.example.notes.network.RetrofitClient;
 import com.example.notes.network.RetrofitNetworkClient;
+import com.example.notes.pojos.ErrorDetails;
 import com.example.notes.pojos.requests.ReqUser;
 import com.example.notes.pojos.responses.ResUser;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.example.notes.utils.NotesUtils.inputStreamToString;
 
 public class NewUserFragment extends Fragment {
 
@@ -67,6 +75,7 @@ public class NewUserFragment extends Fragment {
     }
 
     private void createNewUser() {
+        success.setVisibility(View.GONE);
         RetrofitNetworkClient retrofitNetworkClient = RetrofitClient.getInstance().create(RetrofitNetworkClient.class);
         Call<ResUser> resUserCall = retrofitNetworkClient.createUser(new ReqUser(username.getText().toString(), password.getText().toString()));
         progressBar.setVisibility(View.VISIBLE);
@@ -82,15 +91,34 @@ public class NewUserFragment extends Fragment {
                     success.setText(message);
                     success.setVisibility(View.VISIBLE);
                     login.setVisibility(View.VISIBLE);
-                    return;
+                } else {
+                    Gson gson = new Gson();
+                    String msg = "Something went wrong";
+                    int code = 400;
+                    if (response.errorBody() != null) {
+                        String body = inputStreamToString(response.errorBody().byteStream());
+                        ErrorDetails errorDetails = new ErrorDetails();
+                        errorDetails.setMessage(msg);
+                        try {
+                            errorDetails = gson.fromJson(body, ErrorDetails.class);
+                        } catch (IllegalStateException | JsonSyntaxException e) {
+                            errorDetails.setMessage("Something went wrong");
+                            errorDetails.setResponseCode(500);
+                            Log.i("error-body: ", body + "  cause: " + e.getLocalizedMessage());
+                        }
+                        msg = errorDetails.getMessage();
+                    }
+                    success.setText(msg);
+                    success.setVisibility(View.VISIBLE);
                 }
-                Toast.makeText(getContext(), "Error fetching user", Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<ResUser> call, Throwable t) {
-                Toast.makeText(getContext(), "Error fetching failure", Toast.LENGTH_SHORT).show();
+                Log.i("failure : ", Objects.requireNonNull(t.getLocalizedMessage()));
+                success.setText(t.getLocalizedMessage());
+                success.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
             }
         });

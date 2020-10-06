@@ -54,6 +54,12 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.Topi
         return new TopicViewHolder(listItem);
     }
 
+    @Override
+    public int getItemCount() {
+        return resTopics.size();
+    }
+
+
     public interface TopicListener {
         void updateTopic(ResTopic resTopic, int position);
 
@@ -61,12 +67,6 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.Topi
 
         void addTopicToAdapter(ResTopic resTopic);
 
-    }
-
-
-    @Override
-    public int getItemCount() {
-        return resTopics.size();
     }
 
     public class TopicViewHolder extends RecyclerView.ViewHolder {

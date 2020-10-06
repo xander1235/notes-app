@@ -1,12 +1,12 @@
 package com.example.notes.network;
 
 import com.example.notes.pojos.requests.ReqTopic;
+import com.example.notes.pojos.requests.ReqUser;
 import com.example.notes.pojos.responses.ResLogin;
 import com.example.notes.pojos.responses.ResLogout;
 import com.example.notes.pojos.responses.ResTopic;
 import com.example.notes.pojos.responses.ResTopicsList;
 import com.example.notes.pojos.responses.ResUser;
-import com.example.notes.pojos.requests.ReqUser;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -33,7 +33,7 @@ public interface RetrofitNetworkClient {
     Call<ResTopicsList> getAllNotes(@Query("page") int page, @Query("size") int size, @Header("transaction_id") String transactionId);
 
     @PUT("/notes")
-    Call<ResTopic> updateNote(@Body ReqTopic reqTopic,  @Header("transaction_id") String transactionId);
+    Call<ResTopic> updateNote(@Body ReqTopic reqTopic, @Header("transaction_id") String transactionId);
 
     @DELETE("/notes/{title}")
     Call<ResLogout> deleteNote(@Header("transaction_id") String transactionId, @Path("title") String title);

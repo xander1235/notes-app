@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -20,20 +19,27 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.notes.R;
 import com.example.notes.network.RetrofitClient;
 import com.example.notes.network.RetrofitNetworkClient;
+import com.example.notes.pojos.ErrorDetails;
 import com.example.notes.pojos.responses.ResLogin;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.notes.utils.NotesUtils.inputStreamToString;
+
 public class LoginFragment extends Fragment {
 
-    TextView textView;
+    public static final String LOGIN_PREFERENCE_NAME = "LoginPreference";
+    public static final String LOGIN_TRANSACTION_ID = "LoginTransactionId";
+    TextView textView, invalid;
     EditText username, password;
     Button login;
     ProgressBar progressBar;
-    public static final String LOGIN_PREFERENCE_NAME = "LoginPreference";
-    public static final String LOGIN_TRANSACTION_ID = "LoginTransactionId";
     SharedPreferences sharedPreferences;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
@@ -49,6 +55,7 @@ public class LoginFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         textView = view.findViewById(R.id.newUser);
+        invalid = view.findViewById(R.id.invalid);
         username = view.findViewById(R.id.username);
         password = view.findViewById(R.id.password);
         login = view.findViewById(R.id.login);
@@ -71,7 +78,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void loginUser() {
-
+        invalid.setVisibility(View.GONE);
         RetrofitNetworkClient retrofitNetworkClient = RetrofitClient.getInstance().create(RetrofitNetworkClient.class);
         Call<ResLogin> resUserLogin = retrofitNetworkClient.userLogin(username.getText().toString(), password.getText().toString());
         progressBar.setVisibility(View.VISIBLE);
@@ -81,7 +88,6 @@ public class LoginFragment extends Fragment {
                 if (response.isSuccessful()) {
                     ResLogin resLogin = response.body();
                     Log.i("Login ", resLogin.getTransactionId());
-                    Toast.makeText(getContext(), "Login success with transactionID: " + resLogin.getTransactionId(), Toast.LENGTH_LONG).show();
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString(LOGIN_TRANSACTION_ID, resLogin.getTransactionId());
                     editor.apply();
@@ -90,14 +96,35 @@ public class LoginFragment extends Fragment {
                     fragmentTransaction.replace(R.id.mainLinearLayout, detailsFragment);
                     fragmentTransaction.commit();
                 } else {
-                    Log.i("Login ", "Something went wrong");
+                    Gson gson = new Gson();
+                    String msg = "Something went wrong";
+                    int code = 400;
+                    if (response.errorBody() != null) {
+                        String body = inputStreamToString(response.errorBody().byteStream());
+                        ErrorDetails errorDetails = new ErrorDetails();
+                        errorDetails.setMessage(msg);
+                        try {
+                            errorDetails = gson.fromJson(body, ErrorDetails.class);
+                        } catch (IllegalStateException | JsonSyntaxException e) {
+                            errorDetails.setMessage("Something went wrong");
+                            errorDetails.setResponseCode(500);
+                            Log.i("error-body: ", body + "  cause: " + e.getLocalizedMessage());
+                        }
+                        msg = errorDetails.getMessage();
+                    }
+                    invalid.setText(msg);
+                    invalid.setTextColor(getResources().getColor(R.color.failureText));
+                    invalid.setVisibility(View.VISIBLE);
                 }
                 progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<ResLogin> call, Throwable t) {
-                Log.i("Login ", "failed" + t.getLocalizedMessage());
+                Log.i("failure: ", Objects.requireNonNull(t.getLocalizedMessage()));
+                invalid.setText(t.getLocalizedMessage());
+                invalid.setVisibility(View.VISIBLE);
+                invalid.setTextColor(getResources().getColor(R.color.failureText));
                 progressBar.setVisibility(View.GONE);
             }
         });
