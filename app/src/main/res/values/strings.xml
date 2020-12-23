@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Notes</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_profile">Profile</string>
+
+    <string name="button_logout">LOGOUT</string>
+    <string name="button_update">UPDATE</string>
+    <string name="button_delete">DELETE</string>
+    <string name="button_close">CLOSE</string>
+    <string name="button_login">LOGIN</string>
+    <string name="button_signup">SIGN UP</string>
+
+    <string name="text_title">Title</string>
+    <string name="text_description">Description</string>
+    <string name="text_login">Login</string>
+    <string name="text_username">Username</string>
+    <string name="text_new_user">New user? Create account</string>
+    <string name="text_password">Password</string>
+    <string name="text_create">Create</string>
+    <string name="text_create_with">Created with:</string>
+    <string name="text_signup">Sign up</string>
+    <string name="text_user_created">User created successfully</string>
+    <string name="text_click_here">Click here to login</string>
+    <string name="update_success">Successfully Updated</string>
+</resources>
